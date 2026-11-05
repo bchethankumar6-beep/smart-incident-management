@@ -1,3 +1,4 @@
+
 package com.smartims.service.impl;
 
 import com.smartims.entity.OtpVerification;
@@ -9,6 +10,7 @@ import com.smartims.service.OtpException;
 import com.smartims.service.OtpService;
 import com.smartims.repository.OtpVerificationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -49,11 +52,18 @@ public class OtpServiceImpl implements OtpService {
 
         try {
             emailService.sendOtpEmail(email, otp, purpose);
+
+            log.info("OTP email sending completed for purpose: {}", purpose);
+
         } catch (Exception ex) {
-            // In local/dev environments mail may be unconfigured. Do not fail OTP generation/storage.
+
+            log.error("OTP email failed for purpose: {}. Error type: {}",
+        purpose, ex.getClass().getSimpleName());
+
             auditLogService.logSystem(
                     "OTP_EMAIL_FAILED",
-                    "Failed to send OTP email for purpose: " + purpose,
+                    "Failed to send OTP email for purpose: " + purpose
+                            + ". Error: " + ex.getClass().getSimpleName(),
                     null,
                     "EMAIL"
             );
@@ -61,7 +71,7 @@ public class OtpServiceImpl implements OtpService {
 
         auditLogService.logSystem(
                 "OTP_GENERATED",
-                "OTP generated and sent for purpose: " + purpose,
+                "OTP generated for purpose: " + purpose,
                 null,
                 "OTP"
         );

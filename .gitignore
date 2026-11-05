@@ -44,3 +44,14 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Environment secrets
+.env.properties
+
+# Logs and backups
+*.log
+startup-error*.txt
+*.bak
+
+# Uploaded files
+backend/uploads/
