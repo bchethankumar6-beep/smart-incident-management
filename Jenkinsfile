@@ -9,11 +9,13 @@ pipeline {
             }
         }
 
-        stage('Backend Maven Build') {
-            steps {
-                bat 'call backend\\mvnw.cmd -f backend\\pom.xml clean package -DskipTests'
-            }
+       stage('Backend Maven Build') {
+    steps {
+        dir('backend') {
+            bat 'call mvnw.cmd -f pom.xml clean package -DskipTests'
         }
+    }
+}
 
         stage('Backend Docker Build') {
             steps {
