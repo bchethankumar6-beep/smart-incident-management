@@ -1,1 +1,37 @@
 
+services:
+  backend:
+    image: smart-incident-management-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartims-backend
+    restart: unless-stopped
+    env_file:
+      - .env.properties
+    environment:
+      DB_URL: jdbc:postgresql://smartims-postgres:5432/smart_ims
+      PORT: "8081"
+      TZ: Asia/Kolkata
+      FRONTEND_LOGIN_URL: http://localhost:8084/login
+    networks:
+      - smartims-network
+
+  frontend:
+    image: smart-incident-management-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smartims-frontend
+    restart: unless-stopped
+    ports:
+      - "8084:80"
+    depends_on:
+      - backend
+    networks:
+      - smartims-network
+
+networks:
+  smartims-network:
+    external: true
+
