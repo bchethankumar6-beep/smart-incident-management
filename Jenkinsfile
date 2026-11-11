@@ -34,7 +34,7 @@ pipeline {
                         try {
                             bat 'copy /Y "%ENV_FILE%" ".env.properties" >NUL'
 
-                            bat '"C:\\Users\\Admin\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" compose -p smart-incident-management up -d --no-deps --no-build backend frontend'
+                            bat '"C:\\Users\\Admin\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker-compose.exe" -p smart-incident-management up -d --no-deps --no-build backend frontend'
                         } finally {
                             bat 'if exist ".env.properties" del /F /Q ".env.properties"'
                         }
