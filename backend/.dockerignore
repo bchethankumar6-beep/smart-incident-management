@@ -1,0 +1,5 @@
+.git
+.idea
+*.log
+startup-error*.txt
+target/*.original
