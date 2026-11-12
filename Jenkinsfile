@@ -2,6 +2,13 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKERHUB_USERNAME = 'chethan123444'
+        BACKEND_IMAGE = 'chethan123444/smart-incident-management-backend:latest'
+        FRONTEND_IMAGE = 'chethan123444/smart-incident-management-frontend:latest'
+        DOCKER = 'C:\\Users\\Admin\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe'
+    }
+
     stages {
         stage('GitHub Checkout') {
             steps {
@@ -17,13 +24,35 @@ pipeline {
 
         stage('Backend Docker Build') {
             steps {
-                bat '"C:\\Users\\Admin\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" build -t smart-incident-management-backend:latest -f backend\\Dockerfile backend'
+                bat '"%DOCKER%" build -t smart-incident-management-backend:latest -f backend\\Dockerfile backend'
             }
         }
 
         stage('Frontend Docker Build') {
             steps {
-                bat '"C:\\Users\\Admin\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" build -t smart-incident-management-frontend:latest -f frontend\\Dockerfile frontend'
+                bat '"%DOCKER%" build -t smart-incident-management-frontend:latest -f frontend\\Dockerfile frontend'
+            }
+        }
+
+        stage('Docker Hub Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_TOKEN'
+                )]) {
+                    script {
+                        try {
+                            bat 'echo %DOCKER_TOKEN% | "%DOCKER%" login -u %DOCKER_USER% --password-stdin'
+                            bat '"%DOCKER%" tag smart-incident-management-backend:latest %DOCKER_USER%/smart-incident-management-backend:latest'
+                            bat '"%DOCKER%" tag smart-incident-management-frontend:latest %DOCKER_USER%/smart-incident-management-frontend:latest'
+                            bat '"%DOCKER%" push %DOCKER_USER%/smart-incident-management-backend:latest'
+                            bat '"%DOCKER%" push %DOCKER_USER%/smart-incident-management-frontend:latest'
+                        } finally {
+                            bat '"%DOCKER%" logout'
+                        }
+                    }
+                }
             }
         }
 
@@ -33,7 +62,6 @@ pipeline {
                     script {
                         try {
                             bat 'copy /Y "%ENV_FILE%" ".env.properties" >NUL'
-
                             bat '"C:\\Users\\Admin\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker-compose.exe" -p smart-incident-management up -d --no-deps --no-build backend frontend'
                         } finally {
                             bat 'if exist ".env.properties" del /F /Q ".env.properties"'
