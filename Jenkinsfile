@@ -43,7 +43,7 @@ pipeline {
                 )]) {
                     script {
                         try {
-                            bat 'echo %DOCKER_TOKEN% | "%DOCKER%" login -u %DOCKER_USER% --password-stdin'
+                            bat 'powershell -NoProfile -NonInteractive -Command "$env:DOCKER_TOKEN | & $env:DOCKER login -u $env:DOCKER_USER --password-stdin"'
                             bat '"%DOCKER%" tag smart-incident-management-backend:latest %DOCKER_USER%/smart-incident-management-backend:latest'
                             bat '"%DOCKER%" tag smart-incident-management-frontend:latest %DOCKER_USER%/smart-incident-management-frontend:latest'
                             bat '"%DOCKER%" push %DOCKER_USER%/smart-incident-management-backend:latest'
